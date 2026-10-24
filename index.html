@@ -1214,7 +1214,7 @@ body.fs .notes{bottom:12px}
   <button class="tb" id="bNext" type="button" aria-label="Next slide"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></button>
   <span class="sepv"></span>
   <button class="tb snd" id="bSound" type="button" aria-pressed="false" aria-label="Ambient sound"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 7.5h3l4-3.5v12l-4-3.5h-3z"/><path class="w-on" d="M13.5 7.2a4 4 0 0 1 0 5.6M15.6 5a7 7 0 0 1 0 10"/><path class="w-off" d="M13.5 8l4 4M17.5 8l-4 4"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="lbl">Sound</span><kbd>M</kbd></button>
-  <span class="sm" role="group" aria-label="Sound model"><button type="button" data-m="A" aria-pressed="false" title="A · Ocean Lounge (key 1)">A</button><button type="button" data-m="B" aria-pressed="false" title="B · Harbour Glow (key 2)">B</button></span>
+  <span class="sm" role="group" aria-label="Sound model"><button type="button" data-m="A" aria-pressed="false" title="A · Executive Pad (key 1)">A</button><button type="button" data-m="B" aria-pressed="false" title="B · Corporate Pulse (key 2)">B</button><button type="button" data-m="C" aria-pressed="false" title="C · Piano Ambient (key 3)">C</button><button type="button" data-m="D" aria-pressed="false" title="D · Deep Focus (key 4)">D</button></span>
   <button class="tb" id="bReplay" type="button" aria-label="Replay this slide's animation"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10a6 6 0 1 0 2-4.5"/><path d="M4 3v3.5h3.5"/></svg><span class="lbl">Replay</span><kbd>R</kbd></button>
   <button class="tb" id="bNotes" type="button" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h12v9H9l-4 3v-3H4z"/></svg><span class="lbl">Notes</span><kbd>N</kbd></button>
   <button class="tb" id="bScript" type="button"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3h10v14H5zM8 7h4M8 10h4M8 13h3"/></svg><span class="lbl">Script</span><kbd>S</kbd></button>
@@ -1234,7 +1234,7 @@ body.fs .notes{bottom:12px}
       <p class="sc-eyebrow">Corporate Profile &amp; Business Philosophy 2026–2027</p>
       <h1>Guion de las 15 láminas</h1>
       <p>Para cada lámina: texto en pantalla, propuesta de layout y notas del orador para el Capitán José Gerardo Sánchez. Las notas en español son indicaciones de presentación; el bloque en inglés es lo que se dice en sala. Tiempo estimado: 12 a 15 minutos. Cada lámina anima su contenido al entrar; espera a que termine la secuencia (2–4 s) antes de hablar del detalle.</p>
-      <div class="sc-keys"><span><kbd>←</kbd> <kbd>→</kbd> navegar</span><span><kbd>R</kbd> repetir animación</span><span><kbd>M</kbd> sonido ambiente</span><span><kbd>1</kbd> / <kbd>2</kbd> modelo de sonido A / B</span><span><kbd>N</kbd> notas</span><span><kbd>S</kbd> guion</span><span><kbd>F</kbd> pantalla completa</span><span><kbd>Home</kbd> / <kbd>End</kbd> inicio y fin</span></div>
+      <div class="sc-keys"><span><kbd>←</kbd> <kbd>→</kbd> navegar</span><span><kbd>R</kbd> repetir animación</span><span><kbd>M</kbd> sonido ambiente</span><span><kbd>1</kbd>–<kbd>4</kbd> modelo de sonido A–D</span><span><kbd>N</kbd> notas</span><span><kbd>S</kbd> guion</span><span><kbd>F</kbd> pantalla completa</span><span><kbd>Home</kbd> / <kbd>End</kbd> inicio y fin</span></div>
     </div>
     <div id="scList"></div>
   </div>
@@ -1525,15 +1525,17 @@ const DATA = [
   }
 
   // ---------- Ambient sound: generated live with Web Audio (no files) ----------
-  // Two selectable models, each with its own ambience and its own slide-change cue.
-  //   A · Ocean Lounge  — real-feeling sea swells and foam over a warm, breathing pad; slide cue: a soft air whoosh.
-  //   B · Harbour Glow  — slow cinematic chord progression with sparse celesta notes over a faint sea bed; slide cue: a light crystal chime.
+  // Four selectable corporate ambiences, each with its own slide-change cue:
+  //   A · Executive Pad   — warm, lush chord pad (F–Dm–Bb–C) with rare high bells; cue: soft air swoosh.
+  //   B · Corporate Pulse — light 92 BPM plucked pulse, soft sub kick and pad; cue: crisp tick with rising air.
+  //   C · Piano Ambient   — gentle electric-piano arpeggios over a string bed (D–A–Bm–G); cue: two soft piano notes.
+  //   D · Deep Focus      — warm low drone, airy shimmer and a slow soft pulse; cue: soft low swell.
   const Sound=(()=>{
     const AC=window.AudioContext||window.webkitAudioContext;
-    const NAMES={A:'Ocean Lounge',B:'Harbour Glow'};
+    const NAMES={A:'Executive Pad',B:'Corporate Pulse',C:'Piano Ambient',D:'Deep Focus'};
     const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
     let ctx=null, master=null, verbIn=null, engine=null, on=false, timer=null;
-    let model=store.get('ys-model')==='B'?'B':'A';
+    let model=['A','B','C','D'].includes(store.get('ys-model'))?store.get('ys-model'):'A';
 
     // ---- shared helpers ----
     function rngOf(seed){ let a=seed>>>0; return ()=>{ a=(a+0x6D2B79F5)>>>0; let t=a; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
@@ -1543,7 +1545,7 @@ const DATA = [
         const d=buf.getChannelData(ch); let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
         for(let i=0;i<len;i++){const w=r()*2-1;
           b0=.99886*b0+w*.0555179;b1=.99332*b1+w*.0750759;b2=.969*b2+w*.153852;b3=.8665*b3+w*.3104856;b4=.55*b4+w*.5329522;b5=-.7616*b5-w*.016898;
-          d[i]=(b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11; b6=w*.115926;}
+          d[i]=Math.tanh((b0+b1+b2+b3+b4+b5+b6+w*.5362)*.11*2.2)*.45; b6=w*.115926;}
       }
       return buf;
     }
@@ -1563,70 +1565,114 @@ const DATA = [
       const s=c.createBufferSource(); s.buffer=noise;
       const bp=c.createBiquadFilter(); bp.type='bandpass'; bp.Q.value=.9;
       bp.frequency.setValueAtTime(fwd?420:1800,t); bp.frequency.exponentialRampToValueAtTime(fwd?1800:420,t+.9);
-      const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(level,t+.36); g.gain.exponentialRampToValueAtTime(0.0001,t+1.05);
+      const g=c.createGain(); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(level*.42,t+.42); g.gain.linearRampToValueAtTime(level*.36,t+.6); g.gain.exponentialRampToValueAtTime(0.0001,t+1.1);
       const p=pan(c,fwd?.55:-.55); if(p.pan){p.pan.setValueAtTime(fwd?.55:-.55,t); p.pan.linearRampToValueAtTime(fwd?-.55:.55,t+1);}
       s.connect(bp); bp.connect(g); g.connect(p); p.connect(out); p.connect(verb); s.start(t,.5); s.stop(t+1.15);
     }
 
-    // ---- Model A: Ocean Lounge ----
-    function oceanLounge(c,dest,verb,t0){
+    // ---- extra instruments for the corporate models ----
+    function padNote(c,t,dur,f,dest,o){
+      o=o||{}; const g=c.createGain(), att=o.att||2.5, rel=o.rel||3, pk=o.peak||.1;
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+att); g.gain.setValueAtTime(pk,t+Math.max(att,dur-rel)); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+      (o.det||[-7,7]).forEach(d=>{ const x=c.createOscillator(); x.type=o.type||'sawtooth'; x.frequency.value=f; x.detune.value=d; x.connect(g); x.start(t); x.stop(t+dur+.05); });
+      g.connect(dest);
+    }
+    function epiano(c,t,f,pk,dest,verb,pn){
+      const car=c.createOscillator(), mod=c.createOscillator(), mg=c.createGain(), g=c.createGain();
+      car.frequency.value=f; mod.frequency.value=f; mg.gain.setValueAtTime(f*1.6,t); mg.gain.exponentialRampToValueAtTime(f*.08,t+1.2);
+      mod.connect(mg); mg.connect(car.frequency);
+      g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.006); g.gain.exponentialRampToValueAtTime(pk*.35,t+.5); g.gain.exponentialRampToValueAtTime(0.0001,t+3.2);
+      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2800;
+      car.connect(g); g.connect(lp); const p=pan(c,pn||0); lp.connect(p); p.connect(dest); p.connect(verb);
+      car.start(t); mod.start(t); car.stop(t+3.3); mod.stop(t+3.3);
+    }
+    function pluck(c,t,f,pk,dest,verb,pn){
+      const o=c.createOscillator(); o.type='sawtooth'; o.frequency.value=f;
+      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=2; lp.frequency.setValueAtTime(2600,t); lp.frequency.exponentialRampToValueAtTime(380,t+.28);
+      const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.005); g.gain.exponentialRampToValueAtTime(0.0001,t+.42);
+      o.connect(lp); lp.connect(g); const p=pan(c,pn||0); g.connect(p); p.connect(dest); p.connect(verb); o.start(t); o.stop(t+.45);
+    }
+    function softKick(c,t,pk,dest){
+      const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(44,t+.22);
+      const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.006); g.gain.exponentialRampToValueAtTime(0.0001,t+.5);
+      o.connect(g); g.connect(dest); o.start(t); o.stop(t+.55);
+    }
+    function tick(c,t,pk,dest,noise,pn){
+      const s=c.createBufferSource(); s.buffer=noise; const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=6500;
+      const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.002); g.gain.exponentialRampToValueAtTime(0.0001,t+.05);
+      const p=pan(c,pn||0); s.connect(hp); hp.connect(g); g.connect(p); p.connect(dest); s.start(t,Math.random()); s.stop(t+.06);
+    }
+    function chordModel(c,dest,verb,t0,cfg){
       const out=c.createGain(); out.gain.value=0; out.connect(dest);
-      const noise=pink(c,9,11), r=rngOf(5);
-      // distant surf bed
-      { const s=c.createBufferSource(); s.buffer=noise; s.loop=true; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=260; const g=c.createGain(); g.gain.value=.55;
-        s.connect(lp); lp.connect(g); g.connect(out); s.start(t0); }
-      // warm D-major-9 pad that breathes
-      { const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=950; f.Q.value=.3; const pad=c.createGain(); pad.gain.value=.085;
-        f.connect(pad); pad.connect(out); pad.connect(verb); lfo(c,.031,260,f.frequency,t0); lfo(c,.045,.025,pad.gain,t0+2);
-        [[73.42,.5],[110,.34],[164.81,.22],[185,.2],[277.18,.11]].forEach(([fr,a],k)=>{ const g=c.createGain(); g.gain.value=a; g.connect(f);
-          const o1=c.createOscillator(); o1.type='sine'; o1.frequency.value=fr; o1.connect(g); o1.start(t0);
-          const o2=c.createOscillator(); o2.type='triangle'; o2.frequency.value=fr; o2.detune.value=k%2?6:-6; const g2=c.createGain(); g2.gain.value=.35; o2.connect(g2); g2.connect(g); o2.start(t0); }); }
-      let nextWave=t0+.4, side=1, nextBell=t0+6;
-      function wave(t){
-        const s=c.createBufferSource(); s.buffer=noise; s.loop=true;
-        const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=.25;
-        lp.frequency.setValueAtTime(240,t); lp.frequency.exponentialRampToValueAtTime(1350,t+2.7); lp.frequency.exponentialRampToValueAtTime(300,t+7.5);
-        const e=c.createGain(); e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(.75,t+2.7); e.gain.exponentialRampToValueAtTime(0.0001,t+8);
-        const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=2600;
-        const fe=c.createGain(); fe.gain.setValueAtTime(0.0001,t+2.3); fe.gain.exponentialRampToValueAtTime(.09,t+3.1); fe.gain.exponentialRampToValueAtTime(0.0001,t+6.8);
-        const p=pan(c,side*(.2+r()*.35)); side*=-1;
-        s.connect(lp); lp.connect(e); e.connect(p); s.connect(hp); hp.connect(fe); fe.connect(p); p.connect(out); p.connect(verb);
-        s.start(t,r()*6); s.stop(t+8.2);
-      }
-      return { out,
-        schedule(a,b){
-          while(nextWave<b){ wave(nextWave); nextWave+=6.8+r()*3.6; }
-          while(nextBell<b){ const n=[587.33,659.25,739.99,880,987.77]; bell(c,nextBell,n[Math.floor(r()*n.length)],.018,out,verb,r()*1.1-.55,4); nextBell+=9+r()*8; }
-        },
-        slide(t,fwd){ whoosh(c,t,fwd,out,verb,noise,.2); }, level:.8 };
+      const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=cfg.cut; f.Q.value=.4; f.connect(out); f.connect(verb);
+      if(cfg.cutLfo) lfo(c,cfg.cutLfo[0],cfg.cutLfo[1],f.frequency,t0);
+      return {out,f};
     }
 
-    // ---- Model B: Harbour Glow ----
-    function harbourGlow(c,dest,verb,t0){
-      const out=c.createGain(); out.gain.value=0; out.connect(dest);
-      const noise=pink(c,9,23), r=rngOf(17);
-      // faint sea bed
-      { const s=c.createBufferSource(); s.buffer=noise; s.loop=true; const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; const sw=c.createGain(); sw.gain.value=.5; const g=c.createGain(); g.gain.value=.32;
-        s.connect(lp); lp.connect(sw); sw.connect(g); g.connect(out); lfo(c,.09,.4,sw.gain,t0); s.start(t0); }
-      // Dmaj9 → Bm11 → Gmaj9 → A6/9, 9 s each with 3 s crossfades
-      const CH=[[73.42,146.83,220,277.18,329.63],[61.74,123.47,185,220,277.18],[49,98,146.83,185,246.94],[55,110,164.81,220,246.94]];
-      const ARP=[[587.33,739.99,880,1108.73,659.25],[493.88,587.33,739.99,880,554.37],[493.88,587.33,739.99,880,783.99],[440,554.37,659.25,880,493.88]];
-      const padF=c.createBiquadFilter(); padF.type='lowpass'; padF.frequency.value=1100; padF.Q.value=.3; padF.connect(out); padF.connect(verb); lfo(c,.027,300,padF.frequency,t0);
-      let nextChord=t0, idx=0, nextNote=t0+1.2;
-      function chord(t,k){
-        const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.075,t+3); g.gain.setValueAtTime(.075,t+9); g.gain.exponentialRampToValueAtTime(0.0001,t+12.5); g.connect(padF);
-        CH[k].forEach((fr,i)=>{ const a=[.5,.32,.22,.18,.12][i];
-          const o=c.createOscillator(); o.type=i<2?'sine':'triangle'; o.frequency.value=fr; o.detune.value=(i%2?5:-5);
-          const og=c.createGain(); og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+12.6); });
-      }
-      return { out,
+    // ---- A · Executive Pad: warm modern chords, slow and lush; cue: soft air swoosh ----
+    function executivePad(c,dest,verb,t0){
+      const {out,f}=chordModel(c,dest,verb,t0,{cut:1250,cutLfo:[.05,380]}); const noise=pink(c,3,41), r=rngOf(3);
+      const CH=[[87.31,130.81,164.81,196,261.63,329.63],[73.42,110,174.61,220,261.63,329.63],[58.27,116.54,174.61,220,261.63,293.66],[65.41,98,146.83,220,293.66,329.63]];
+      let next=t0, i=0, nextSh=t0+3;
+      return { out, level:1.4,
         schedule(a,b){
-          while(nextChord<b){ chord(nextChord,idx%4); nextChord+=9; idx++; }
-          while(nextNote<b){ const k=Math.floor((nextNote-t0)/9)%4; if(r()<.82) bell(c,nextNote,ARP[k][Math.floor(r()*5)],.03,out,verb,r()*1.2-.6,3.2); nextNote+=1.7+r()*1.1; }
+          while(next<b){ CH[i%4].forEach((fr,k)=>padNote(c,next,10.5,fr,f,{peak:[.05,.04,.032,.03,.026,.02][k],att:3,rel:3.5,type:k<2?'triangle':'sawtooth'})); next+=8; i++; }
+          while(nextSh<b){ const top=CH[Math.floor((nextSh-t0)/8)%4]; bell(c,nextSh,top[5]*2,.012,out,verb,r()*1.2-.6,5); nextSh+=5+r()*4; }
         },
-        slide(t){ bell(c,t,1174.66,.07,out,verb,-.25,2.4); bell(c,t+.09,1760,.05,out,verb,.25,2.2); }, level:1.75 };
+        slide(t,fwd){ whoosh(c,t,fwd,out,verb,noise,4.2); bell(c,t+.25,1046.5,.085,out,verb,fwd?.3:-.3,2.5); } };
     }
-    const BUILD={A:oceanLounge,B:harbourGlow};
+
+    // ---- B · Corporate Pulse: light 92 BPM pulse, soft sub and pad; cue: tick + rising air ----
+    function corporatePulse(c,dest,verb,t0){
+      const {out,f}=chordModel(c,dest,verb,t0,{cut:900,cutLfo:[.04,250]}); const noise=pink(c,3,52), r=rngOf(9);
+      const beat=60/92, bar=beat*4;
+      const CH=[[110,164.81,220,261.63,329.63],[87.31,130.81,174.61,220,261.63],[65.41,130.81,196,261.63,329.63],[98,146.83,196,246.94,293.66]];
+      const ARP=[[440,523.25,659.25,523.25],[349.23,440,523.25,440],[392,523.25,659.25,523.25],[392,493.88,587.33,493.88]];
+      let nextBar=t0, i=0, step=t0, s=0;
+      return { out, level:2,
+        schedule(a,b){
+          while(nextBar<b){ const k=i%4; CH[k].forEach((fr,j)=>padNote(c,nextBar,bar*2+2,fr,f,{peak:[.035,.022,.02,.018,.014][j],att:1.5,rel:2,type:'triangle',det:[-5,5]})); softKick(c,nextBar,.11,out); softKick(c,nextBar+beat*2,.07,out); nextBar+=bar*2; i++; }
+          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, n=ARP[k][s%4]; if(s%8!==7) pluck(c,step,n,.035,out,verb,(s%2?.3:-.3)); if(s%2===1) tick(c,step,.02,out,noise,.4); step+=beat/2; s++; }
+        },
+        slide(t,fwd){ tick(c,t,.3,out,noise,0); whoosh(c,t+.02,fwd,out,verb,noise,3.1); } };
+    }
+
+    // ---- C · Piano Ambient: soft electric piano over a light string bed; cue: two gentle piano notes ----
+    function pianoAmbient(c,dest,verb,t0){
+      const {out,f}=chordModel(c,dest,verb,t0,{cut:850,cutLfo:[.03,200]}); const r=rngOf(13);
+      const beat=.75, bar=beat*4;
+      const CH=[[73.42,146.83,220,293.66],[69.3,138.59,220,329.63],[61.74,123.47,185,293.66],[49,98,146.83,246.94]];
+      const UP=[[587.33,739.99,880,1174.66],[554.37,659.25,880,1108.73],[493.88,587.33,739.99,987.77],[493.88,587.33,783.99,987.77]];
+      const PAT=[0,2,1,3,2,1,0,-1];
+      let nextBar=t0, i=0, step=t0+.2, s=0;
+      return { out, level:1.9,
+        schedule(a,b){
+          while(nextBar<b){ CH[i%4].forEach((fr,j)=>padNote(c,nextBar,bar*2+2.5,fr,f,{peak:[.045,.03,.022,.016][j],att:1.8,rel:2.5,type:'triangle',det:[-4,4]})); epiano(c,nextBar,CH[i%4][1],.05,out,verb,0); nextBar+=bar*2; i++; }
+          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, pi=PAT[s%8]; if(pi>=0&&r()<.9) epiano(c,step,UP[k][pi],.045,out,verb,(r()-.5)*.8); step+=beat; s++; }
+        },
+        slide(t,fwd){ epiano(c,t,fwd?880:739.99,.15,out,verb,-.2); epiano(c,t+.12,fwd?1174.66:987.77,.12,out,verb,.2); } };
+    }
+
+    // ---- D · Deep Focus: warm low drone, airy shimmer and a slow soft pulse; cue: soft low swell ----
+    function deepFocus(c,dest,verb,t0){
+      const {out,f}=chordModel(c,dest,verb,t0,{cut:700,cutLfo:[.025,260]}); const noise=pink(c,3,64), r=rngOf(21);
+      [[55,.06],[82.41,.04],[110,.035],[164.81,.02]].forEach(([fr,a])=>{ const g=c.createGain(); g.gain.value=a; g.connect(f);
+        ['sine','triangle'].forEach((tp,j)=>{ const o=c.createOscillator(); o.type=tp; o.frequency.value=fr; o.detune.value=j?6:-6; o.connect(g); o.start(t0); }); });
+      const sh=c.createGain(); sh.gain.value=.012; sh.connect(out); sh.connect(verb); lfo(c,.06,.009,sh.gain,t0);
+      [880,1318.51,1108.73].forEach((fr,j)=>{ const o=c.createOscillator(); o.type='sine'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=.33; lfo(c,.05+j*.023,.3,g.gain,t0+j); o.connect(g); g.connect(sh); o.start(t0); });
+      let pulse=t0+.5, nextBell=t0+4;
+      return { out, level:.9,
+        schedule(a,b){
+          while(pulse<b){ softKick(c,pulse,.13,out); softKick(c,pulse+.42,.06,out); pulse+=2.4; }
+          while(nextBell<b){ const n=[440,554.37,659.25,880]; bell(c,nextBell,n[Math.floor(r()*4)],.02,out,verb,r()*1-.5,4.5); nextBell+=6+r()*6; }
+        },
+        slide(t,fwd){
+          const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(95,t); o.frequency.exponentialRampToValueAtTime(42,t+.9);
+          const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.4,t+.05); g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);
+          o.connect(g); g.connect(out); o.start(t); o.stop(t+1.25);
+          whoosh(c,t-.1,fwd,out,verb,noise,.4); } };
+    }
+    const BUILD={A:executivePad,B:corporatePulse,C:pianoAmbient,D:deepFocus};
 
     function graph(c){
       const comp=c.createDynamicsCompressor(); comp.threshold.value=-18; comp.ratio.value=3; comp.attack.value=.02; comp.release.value=.4; comp.connect(c.destination);
@@ -1652,7 +1698,7 @@ const DATA = [
       const pr=ctx.resume(); if(pr&&pr.then) pr.then(go,()=>{}); else go();
       on=true; if(!engine) swap(model);
       clearInterval(timer); timer=setInterval(()=>{ if(engine) engine.schedule(ctx.currentTime,ctx.currentTime+3); },1000);
-      ui(); toast('Ambient sound <b>'+model+' · '+NAMES[model]+'</b> · <b>1</b>/<b>2</b> switch · <b>M</b> mute');
+      ui(); toast('Sound <b>'+model+' · '+NAMES[model]+'</b> · <b>1</b>–<b>4</b> switch · <b>M</b> mute');
     }
     function stop(){
       if(!on) return; on=false; clearInterval(timer); ui();
@@ -1662,13 +1708,13 @@ const DATA = [
     function setModel(m){
       if(!NAMES[m]) return; model=m; store.set('ys-model',m);
       if(!on){ store.set('ys-sound','on'); start(); return; }
-      swap(m); ui(); toast('Ambient sound <b>'+m+' · '+NAMES[m]+'</b>');
+      swap(m); ui(); toast('Sound <b>'+m+' · '+NAMES[m]+'</b>');
     }
     // Offline render used only to produce listening previews (export mode)
-    async function render(m,dur,cues){
+    async function render(m,dur,cues,cueOnly){
       const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext, sr=44100, c=new OC(2,Math.floor(sr*dur),sr);
-      const g=graph(c); g.m.gain.setValueAtTime(0,0); g.m.gain.linearRampToValueAtTime(.9,3.5); g.m.gain.setValueAtTime(.9,dur-2.5); g.m.gain.linearRampToValueAtTime(0,dur);
-      const e=BUILD[m](c,g.m,g.cv,0); e.out.gain.value=e.level; e.schedule(0,dur);
+      const g=graph(c); g.m.gain.setValueAtTime(0,0); g.m.gain.linearRampToValueAtTime(.9,2.5); g.m.gain.setValueAtTime(.9,dur-2.5); g.m.gain.linearRampToValueAtTime(0,dur);
+      const e=BUILD[m](c,g.m,g.cv,0); e.out.gain.value=cueOnly?0.0001:e.level; if(!cueOnly) e.schedule(0,dur); else { e.out.disconnect(); const o2=c.createGain(); o2.gain.value=e.level; e.out.connect(o2); o2.connect(g.m); e.out.gain.value=1; }
       (cues||[]).forEach((t,i)=>e.slide(t,i%2===0));
       const buf=await c.startRendering(); return [buf.getChannelData(0),buf.getChannelData(1)];
     }
@@ -1697,7 +1743,7 @@ const DATA = [
   if(!Sound.supported||EXP){ $('bSound').hidden=true; document.querySelector('.sm').hidden=true; }
   // Browsers only allow audio after a gesture: the first click, tap or key press fades the ambience in (unless muted before).
   let armed=!EXP&&Sound.supported;
-  const firstGesture=e=>{ if(!armed) return; if(['m','M','1','2'].includes(e.key)) return; if(e.target&&e.target.closest&&e.target.closest('.sm')) return; if(e.target&&e.target.closest&&e.target.closest('#bSound')) return; armed=false; Sound.autoStart(); };
+  const firstGesture=e=>{ if(!armed) return; if(['m','M','1','2','3','4'].includes(e.key)) return; if(e.target&&e.target.closest&&e.target.closest('.sm')) return; if(e.target&&e.target.closest&&e.target.closest('#bSound')) return; armed=false; Sound.autoStart(); };
   ['pointerup','keydown','touchend'].forEach(ev=>document.addEventListener(ev,firstGesture,{capture:true}));
   $('bNotes').onclick=()=>toggleNotes(); $('bScript').onclick=()=>toggleScript(true); $('bBack').onclick=()=>toggleScript(false); $('bFs').onclick=toggleFs;
 
@@ -1711,7 +1757,7 @@ const DATA = [
     else if(k==='End'){go(N-1);e.preventDefault();}
     else if(k==='r'||k==='R'){play(slides[cur]);}
     else if(k==='m'||k==='M'){armed=false;Sound.toggle();}
-    else if(k==='1'||k==='2'){armed=false;Sound.setModel(k==='1'?'A':'B');}
+    else if(['1','2','3','4'].includes(k)){armed=false;Sound.setModel({'1':'A','2':'B','3':'C','4':'D'}[k]);}
     else if(k==='n'||k==='N'){toggleNotes();}
     else if(k==='s'||k==='S'){toggleScript(true);}
     else if(k==='f'||k==='F'){toggleFs();}

@@ -1650,21 +1650,21 @@ const DATA = [
     }
     function epiano(c,t,f,pk,dest,verb,pn){
       const car=c.createOscillator(), mod=c.createOscillator(), mg=c.createGain(), g=c.createGain();
-      car.frequency.value=f; mod.frequency.value=f; mg.gain.setValueAtTime(f*1.6,t); mg.gain.exponentialRampToValueAtTime(f*.08,t+1.2);
+      car.frequency.value=f; mod.frequency.value=f; mg.gain.setValueAtTime(f*.85,t); mg.gain.exponentialRampToValueAtTime(f*.05,t+1);
       mod.connect(mg); mg.connect(car.frequency);
       g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.006); g.gain.exponentialRampToValueAtTime(pk*.35,t+.5); g.gain.exponentialRampToValueAtTime(0.0001,t+3.2);
-      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2800;
+      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=2300;
       car.connect(g); g.connect(lp); const p=pan(c,pn||0); lp.connect(p); p.connect(dest); p.connect(verb);
       car.start(t); mod.start(t); car.stop(t+3.3); mod.stop(t+3.3);
     }
     function pluck(c,t,f,pk,dest,verb,pn){
       const o=c.createOscillator(); o.type='sawtooth'; o.frequency.value=f;
-      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=2; lp.frequency.setValueAtTime(2600,t); lp.frequency.exponentialRampToValueAtTime(380,t+.28);
+      const lp=c.createBiquadFilter(); lp.type='lowpass'; lp.Q.value=.7; lp.frequency.setValueAtTime(1700,t); lp.frequency.exponentialRampToValueAtTime(380,t+.28);
       const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.005); g.gain.exponentialRampToValueAtTime(0.0001,t+.42);
       o.connect(lp); lp.connect(g); const p=pan(c,pn||0); g.connect(p); p.connect(dest); p.connect(verb); o.start(t); o.stop(t+.45);
     }
     function softKick(c,t,pk,dest){
-      const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(120,t); o.frequency.exponentialRampToValueAtTime(44,t+.22);
+      const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(170,t); o.frequency.exponentialRampToValueAtTime(82,t+.2);
       const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(pk,t+.006); g.gain.exponentialRampToValueAtTime(0.0001,t+.5);
       o.connect(g); g.connect(dest); o.start(t); o.stop(t+.55);
     }
@@ -1687,10 +1687,10 @@ const DATA = [
       let next=t0, i=0, nextSh=t0+3;
       return { out, level:1.4,
         schedule(a,b){
-          while(next<b){ if(next>=a-.15) CH[i%4].forEach((fr,k)=>padNote(c,next,10.5,fr,f,{peak:[.05,.04,.032,.03,.026,.02][k],att:3,rel:3.5,type:k<2?'triangle':'sawtooth'})); next+=8; i++; }
+          while(next<b){ if(next>=a-.15) CH[i%4].forEach((fr,k)=>padNote(c,next,10.5,fr,f,{peak:[.05,.04,.032,.03,.026,.02][k],att:3,rel:3.5,type:'triangle'})); next+=8; i++; }
           while(nextSh<b){ const top=CH[Math.floor((nextSh-t0)/8)%4]; if(nextSh>=a-.15) bell(c,nextSh,top[5]*2,.012,out,verb,r()*1.2-.6,5); nextSh+=5+r()*4; }
         },
-        slide(t,fwd){ whoosh(c,t,fwd,out,verb,noise,4.2); bell(c,t+.25,1046.5,.085,out,verb,fwd?.3:-.3,2.5); } };
+        slide(t,fwd){ whoosh(c,t,fwd,out,verb,noise,3); bell(c,t+.25,1046.5,.06,out,verb,fwd?.3:-.3,2.5); } };
     }
 
     // ---- B · Corporate Pulse: light 92 BPM pulse, soft sub and pad; cue: tick + rising air ----
@@ -1705,7 +1705,7 @@ const DATA = [
           while(nextBar<b){ const k=i%4; if(nextBar>=a-.15){ CH[k].forEach((fr,j)=>padNote(c,nextBar,bar*2+2,fr,f,{peak:[.035,.022,.02,.018,.014][j],att:1.5,rel:2,type:'triangle',det:[-5,5]})); softKick(c,nextBar,.11,out); softKick(c,nextBar+beat*2,.07,out); } nextBar+=bar*2; i++; }
           while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, n=ARP[k][s%4]; if(step>=a-.15){ if(s%8!==7) pluck(c,step,n,.035,out,verb,(s%2?.3:-.3)); if(s%2===1) tick(c,step,.02,out,noise,.4); } step+=beat/2; s++; }
         },
-        slide(t,fwd){ tick(c,t,.3,out,noise,0); whoosh(c,t+.02,fwd,out,verb,noise,3.1); } };
+        slide(t,fwd){ tick(c,t,.2,out,noise,0); whoosh(c,t+.02,fwd,out,verb,noise,2.2); } };
     }
 
     // ---- C · Piano Ambient: soft electric piano over a light string bed; cue: two gentle piano notes ----
@@ -1721,37 +1721,42 @@ const DATA = [
           while(nextBar<b){ if(nextBar>=a-.15) CH[i%4].forEach((fr,j)=>padNote(c,nextBar,bar*2+2.5,fr,f,{peak:[.045,.03,.022,.016][j],att:1.8,rel:2.5,type:'triangle',det:[-4,4]})); if(nextBar>=a-.15) epiano(c,nextBar,CH[i%4][1],.05,out,verb,0); nextBar+=bar*2; i++; }
           while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, pi=PAT[s%8]; if(pi>=0&&r()<.9&&step>=a-.15) epiano(c,step,UP[k][pi],.045,out,verb,(r()-.5)*.8); step+=beat; s++; }
         },
-        slide(t,fwd){ epiano(c,t,fwd?880:739.99,.15,out,verb,-.2); epiano(c,t+.12,fwd?1174.66:987.77,.12,out,verb,.2); } };
+        slide(t,fwd){ epiano(c,t,fwd?880:739.99,.11,out,verb,-.2); epiano(c,t+.12,fwd?1174.66:987.77,.085,out,verb,.2); } };
     }
 
     // ---- D · Deep Focus: warm low drone, airy shimmer and a slow soft pulse; cue: soft low swell ----
     function deepFocus(c,dest,verb,t0){
       const {out,f}=chordModel(c,dest,verb,t0,{cut:700,cutLfo:[.025,260]}); const noise=pink(c,3,64), r=rngOf(21);
-      [[55,.06],[82.41,.04],[110,.035],[164.81,.02]].forEach(([fr,a])=>{ const g=c.createGain(); g.gain.value=a; g.connect(f);
+      [[55,.025],[82.41,.025],[110,.04],[164.81,.026]].forEach(([fr,a])=>{ const g=c.createGain(); g.gain.value=a; g.connect(f);
         ['sine','triangle'].forEach((tp,j)=>{ const o=c.createOscillator(); o.type=tp; o.frequency.value=fr; o.detune.value=j?6:-6; o.connect(g); o.start(t0); keep(o); }); });
       // an octave-up layer so the drone still reads on small phone speakers
       [[220,.022],[329.63,.012]].forEach(([fr,a])=>{ const o=c.createOscillator(); o.type='triangle'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=a; o.connect(g); g.connect(f); o.start(t0); keep(o); });
       const sh=c.createGain(); sh.gain.value=.012; sh.connect(out); sh.connect(verb); lfo(c,.06,.009,sh.gain,t0);
       [880,1318.51,1108.73].forEach((fr,j)=>{ const o=c.createOscillator(); o.type='sine'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=.33; lfo(c,.05+j*.023,.3,g.gain,t0+j); o.connect(g); g.connect(sh); o.start(t0); keep(o); });
       let pulse=t0+.5, nextBell=t0+4;
-      return { out, level:.9,
+      return { out, level:1.25,
         schedule(a,b){
           while(pulse<b){ if(pulse>=a-.15){ softKick(c,pulse,.13,out); softKick(c,pulse+.42,.06,out); } pulse+=2.4; }
           while(nextBell<b){ const n=[440,554.37,659.25,880]; if(nextBell>=a-.15) bell(c,nextBell,n[Math.floor(r()*4)],.02,out,verb,r()*1-.5,4.5); nextBell+=6+r()*6; }
         },
         slide(t,fwd){
-          const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(95,t); o.frequency.exponentialRampToValueAtTime(42,t+.9);
-          const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.4,t+.05); g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);
+          const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(190,t); o.frequency.exponentialRampToValueAtTime(96,t+.9);
+          const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(.24,t+.06); g.gain.exponentialRampToValueAtTime(0.0001,t+1.2);
           o.connect(g); g.connect(out); o.start(t); o.stop(t+1.25);
           whoosh(c,t-.1,fwd,out,verb,noise,.4); } };
     }
     const BUILD={A:executivePad,B:corporatePulse,C:pianoAmbient,D:deepFocus};
 
     function graph(c){
-      const comp=c.createDynamicsCompressor(); comp.threshold.value=-18; comp.ratio.value=3; comp.attack.value=.02; comp.release.value=.4; comp.connect(c.destination);
-      const m=c.createGain(); m.gain.value=0; m.connect(comp);
-      const cv=c.createConvolver(); cv.buffer=impulse(c,4.2,3.2); const wet=c.createGain(); wet.gain.value=.5; cv.connect(wet); wet.connect(m);
-      return {m,cv};
+      const lim=c.createDynamicsCompressor(); lim.threshold.value=-4; lim.knee.value=0; lim.ratio.value=20; lim.attack.value=.003; lim.release.value=.25; lim.connect(c.destination);
+      const hp=c.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=95; hp.Q.value=.6; hp.connect(lim);
+      const tame=c.createBiquadFilter(); tame.type='highshelf'; tame.frequency.value=6000; tame.gain.value=-4; tame.connect(hp);
+      const m=c.createGain(); m.gain.value=0; m.connect(tame);
+      const vin=c.createBiquadFilter(); vin.type='highpass'; vin.frequency.value=260;
+      const cv=c.createConvolver(); cv.buffer=impulse(c,3,3.6); vin.connect(cv);
+      const vlp=c.createBiquadFilter(); vlp.type='lowpass'; vlp.frequency.value=3600; cv.connect(vlp);
+      const wet=c.createGain(); wet.gain.value=.3; vlp.connect(wet); wet.connect(m);
+      return {m,cv:vin};
     }
     function swap(to){
       const t=ctx.currentTime, old=engine;
@@ -1778,7 +1783,7 @@ const DATA = [
       if(!AC||on) return;
       iosPlayback();
       if(!ctx){ ctx=new AC(); const g=graph(ctx); master=g.m; verbIn=g.cv; }
-      const go=()=>{ const t=ctx.currentTime; master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value,t); master.gain.linearRampToValueAtTime(.9,t+3.5); };
+      const go=()=>{ const t=ctx.currentTime; master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value,t); master.gain.linearRampToValueAtTime(.55,t+3.5); };
       const pr=ctx.resume(); if(pr&&pr.then) pr.then(go,()=>{}); else go();
       on=true; if(!engine) swap(model);
       clearInterval(timer); timer=setInterval(()=>{ if(engine) engine.schedule(ctx.currentTime,ctx.currentTime+3); },1000);
@@ -1797,7 +1802,7 @@ const DATA = [
     // Offline render used only to produce listening previews (export mode)
     async function render(m,dur,cues,cueOnly){
       const OC=window.OfflineAudioContext||window.webkitOfflineAudioContext, sr=44100, c=new OC(2,Math.floor(sr*dur),sr);
-      const g=graph(c); g.m.gain.setValueAtTime(0,0); g.m.gain.linearRampToValueAtTime(.9,2.5); g.m.gain.setValueAtTime(.9,dur-2.5); g.m.gain.linearRampToValueAtTime(0,dur);
+      const g=graph(c); g.m.gain.setValueAtTime(0,0); g.m.gain.linearRampToValueAtTime(.55,2.5); g.m.gain.setValueAtTime(.55,dur-2.5); g.m.gain.linearRampToValueAtTime(0,dur);
       const e=BUILD[m](c,g.m,g.cv,0); e.out.gain.value=cueOnly?0.0001:e.level; if(!cueOnly) e.schedule(0,dur); else { e.out.disconnect(); const o2=c.createGain(); o2.gain.value=e.level; e.out.connect(o2); o2.connect(g.m); e.out.gain.value=1; }
       (cues||[]).forEach((t,i)=>e.slide(t,i%2===0));
       const buf=await c.startRendering(); return [buf.getChannelData(0),buf.getChannelData(1)];

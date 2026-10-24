@@ -750,6 +750,60 @@ body.fs .notes{bottom:12px}
 .enter .diff::after{animation:rvGrowX 1.1s var(--ease-out) backwards;animation-delay:calc(var(--base) + var(--d,0s) + .35s)}
 @media (prefers-reduced-motion:reduce){.gulls,.sun{display:none}}
 
+
+/* ---------- Toolbar panels (sound + more) ---------- */
+.desk{display:contents}
+.more{display:none!important}
+.tb .car{width:10px;height:10px;opacity:.7;transition:transform .3s var(--ease-out)}
+.tb[aria-expanded="true"] .car{transform:rotate(180deg)}
+.pop{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:33;box-sizing:border-box;
+  width:min(360px,calc(100vw - 32px));max-height:calc(100vh - 110px - env(safe-area-inset-bottom,0px));overflow:auto;overscroll-behavior:contain;
+  background:rgba(7,30,59,.97);border:1px solid var(--hair-navy);border-radius:18px;padding:14px;box-shadow:0 24px 60px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;gap:10px;animation:popIn .32s var(--ease-out)}
+@keyframes popIn{from{opacity:0;transform:translate(-50%,10px)}}
+.pop-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 4px 4px}
+.pop-h b{font-family:var(--f-caps);font-weight:500;font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+.switch{position:relative;width:48px;height:28px;border-radius:999px;border:1px solid var(--hair-navy);background:rgba(195,211,224,.14);cursor:pointer;padding:0;flex:none;transition:background-color .3s}
+.switch i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--mist);transition:transform .3s var(--ease-out),background-color .3s}
+.switch[aria-checked="true"]{background:var(--gold)}
+.switch[aria-checked="true"] i{transform:translateX(20px);background:var(--navy)}
+.opts{display:grid;grid-template-columns:1fr;gap:6px}
+.opt{display:grid;grid-template-columns:34px minmax(0,1fr) 18px;align-items:center;gap:12px;min-height:52px;padding:8px 12px;border-radius:12px;border:1px solid transparent;background:rgba(195,211,224,.06);color:var(--ivory);text-align:left;cursor:pointer;font:inherit;transition:background-color .3s,border-color .3s}
+.opt:hover{background:rgba(220,173,121,.12)}
+.opt[aria-checked="true"]{border-color:var(--gold);background:rgba(220,173,121,.14)}
+.ol{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-caps);font-size:15px;border:1px solid var(--hair-navy);color:var(--gold)}
+.opt[aria-checked="true"] .ol{background:var(--gold);color:var(--navy);border-color:var(--gold)}
+.ot{display:flex;flex-direction:column;gap:2px;min-width:0}
+.ot b{font-size:15px;font-weight:600;color:var(--ivory)}
+.ot small{font-size:12.5px;color:var(--mist);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eq2{display:none;align-items:flex-end;gap:2px;height:14px}
+.opt.playing .eq2{display:inline-flex}
+.eq2 i{display:block;width:2px;height:100%;background:var(--gold);transform-origin:bottom;animation:eq 1.1s ease-in-out infinite}
+.eq2 i:nth-child(2){animation-delay:-.4s;animation-duration:.9s}.eq2 i:nth-child(3){animation-delay:-.7s;animation-duration:1.3s}
+.pop-k{margin:2px 4px 0;font-size:12px;color:var(--mist-dim)}
+.pop-k kbd{font-family:var(--f-body);font-size:11px;border:1px solid var(--hair-navy-soft);border-radius:4px;padding:0 4px;color:var(--mist)}
+#popMore{width:min(260px,calc(100vw - 32px));gap:4px;padding:8px}
+.row{display:flex;align-items:center;gap:12px;min-height:46px;padding:0 14px;border:0;border-radius:10px;background:none;color:var(--ivory);font:inherit;font-size:15px;text-align:left;cursor:pointer}
+.row:hover{background:rgba(220,173,121,.12)}
+.row svg{width:18px;height:18px;flex:none;color:var(--gold)}
+body.export .pop{display:none!important}
+/* Phones and short landscape screens: keep only navigation, sound and a "more" menu */
+@media (max-width:720px),(max-height:520px){
+  .desk{display:none}
+  .more{display:inline-flex!important}
+  .tb .lbl,.tb kbd,.tb .car{display:none}
+  .counter{min-width:64px;padding:0 6px}
+  .pop-k{display:none}
+}
+@media (max-height:520px){
+  .pop{bottom:calc(58px + env(safe-area-inset-bottom,0px));max-height:calc(100vh - 72px)}
+  .opts{grid-template-columns:1fr 1fr}
+  .opt{min-height:46px;grid-template-columns:28px minmax(0,1fr);gap:8px;padding:6px 10px}
+  .opt .eq2{display:none!important}
+  .ol{width:28px;height:28px;font-size:13px}
+  .ot small{display:none}
+}
+
 /* ---------- Print / PDF (open the downloaded file in a browser, print to PDF) ---------- */
 @media print{
   @page{size:1600px 900px;margin:0}
@@ -1213,15 +1267,31 @@ body.fs .notes{bottom:12px}
   <span class="counter" id="counter"><span>01 / 15</span></span>
   <button class="tb" id="bNext" type="button" aria-label="Next slide"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M7.5 4.5L13 10l-5.5 5.5"/></svg></button>
   <span class="sepv"></span>
-  <button class="tb snd" id="bSound" type="button" aria-pressed="false" aria-label="Ambient sound"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 7.5h3l4-3.5v12l-4-3.5h-3z"/><path class="w-on" d="M13.5 7.2a4 4 0 0 1 0 5.6M15.6 5a7 7 0 0 1 0 10"/><path class="w-off" d="M13.5 8l4 4M17.5 8l-4 4"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="lbl">Sound</span><kbd>M</kbd></button>
-  <span class="sm" role="group" aria-label="Sound model"><button type="button" data-m="A" aria-pressed="false" title="A · Executive Pad (key 1)">A</button><button type="button" data-m="B" aria-pressed="false" title="B · Corporate Pulse (key 2)">B</button><button type="button" data-m="C" aria-pressed="false" title="C · Piano Ambient (key 3)">C</button><button type="button" data-m="D" aria-pressed="false" title="D · Deep Focus (key 4)">D</button></span>
-  <button class="tb" id="bReplay" type="button" aria-label="Replay this slide's animation"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10a6 6 0 1 0 2-4.5"/><path d="M4 3v3.5h3.5"/></svg><span class="lbl">Replay</span><kbd>R</kbd></button>
+  <button class="tb snd" id="bSound" type="button" aria-pressed="false" aria-haspopup="true" aria-expanded="false" aria-controls="popSound" aria-label="Sound"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3.5 7.5h3l4-3.5v12l-4-3.5h-3z"/><path class="w-on" d="M13.5 7.2a4 4 0 0 1 0 5.6M15.6 5a7 7 0 0 1 0 10"/><path class="w-off" d="M13.5 8l4 4M17.5 8l-4 4"/></svg><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span><span class="lbl">Sound</span><svg class="car" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 7.5l3-3 3 3"/></svg></button>
+  <span class="desk"><button class="tb" id="bReplay" type="button" aria-label="Replay this slide's animation"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10a6 6 0 1 0 2-4.5"/><path d="M4 3v3.5h3.5"/></svg><span class="lbl">Replay</span><kbd>R</kbd></button>
   <button class="tb" id="bNotes" type="button" aria-pressed="false"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h12v9H9l-4 3v-3H4z"/></svg><span class="lbl">Notes</span><kbd>N</kbd></button>
   <button class="tb" id="bScript" type="button"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3h10v14H5zM8 7h4M8 10h4M8 13h3"/></svg><span class="lbl">Script</span><kbd>S</kbd></button>
-  <button class="tb" id="bFs" type="button" aria-label="Full screen"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg><span class="lbl">Full screen</span><kbd>F</kbd></button>
+  <button class="tb" id="bFs" type="button" aria-label="Full screen"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg><span class="lbl">Full screen</span><kbd>F</kbd></button></span>
+  <button class="tb more" id="bMore" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="popMore" aria-label="More options"><svg viewBox="0 0 20 20" fill="currentColor"><circle cx="4.5" cy="10" r="1.6"/><circle cx="10" cy="10" r="1.6"/><circle cx="15.5" cy="10" r="1.6"/></svg></button>
 </nav>
 <div class="progress" aria-hidden="true"><i id="prog"></i></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="pop" id="popSound" hidden role="dialog" aria-label="Sound">
+  <div class="pop-h"><b>Ambient sound</b><button class="switch" id="sndSwitch" type="button" role="switch" aria-checked="false" aria-label="Ambient sound on or off"><i></i></button></div>
+  <div class="opts" role="radiogroup" aria-label="Sound model">
+    <button class="opt" type="button" role="radio" aria-checked="false" data-m="A"><span class="ol">A</span><span class="ot"><b>Executive Pad</b><small>Warm lush chords · soft swoosh</small></span><span class="eq2" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button class="opt" type="button" role="radio" aria-checked="false" data-m="B"><span class="ol">B</span><span class="ot"><b>Corporate Pulse</b><small>Light tech pulse · crisp tick</small></span><span class="eq2" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button class="opt" type="button" role="radio" aria-checked="false" data-m="C"><span class="ol">C</span><span class="ot"><b>Piano Ambient</b><small>Soft piano · two gentle notes</small></span><span class="eq2" aria-hidden="true"><i></i><i></i><i></i></span></button>
+    <button class="opt" type="button" role="radio" aria-checked="false" data-m="D"><span class="ol">D</span><span class="ot"><b>Deep Focus</b><small>Calm low drone · soft swell</small></span><span class="eq2" aria-hidden="true"><i></i><i></i><i></i></span></button>
+  </div>
+  <p class="pop-k">Keys <kbd>1</kbd>–<kbd>4</kbd> switch · <kbd>M</kbd> mute</p>
+</div>
+<div class="pop" id="popMore" hidden role="dialog" aria-label="More options">
+  <button class="row" type="button" data-act="replay"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 10a6 6 0 1 0 2-4.5"/><path d="M4 3v3.5h3.5"/></svg>Replay animation</button>
+  <button class="row" type="button" data-act="notes"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h12v9H9l-4 3v-3H4z"/></svg>Speaker notes</button>
+  <button class="row" type="button" data-act="script"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3h10v14H5zM8 7h4M8 10h4M8 13h3"/></svg>Script</button>
+  <button class="row" type="button" data-act="fs" id="rowFs"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7V3h4M13 3h4v4M17 13v4h-4M7 17H3v-4"/></svg>Full screen</button>
+</div>
 <div class="rotate-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg>Rotate your phone for a larger view</div>
 
 <div class="script" id="script" hidden>
@@ -1555,7 +1625,8 @@ const DATA = [
       return buf;
     }
     const pan=(c,v)=>{ if(c.createStereoPanner){const p=c.createStereoPanner();p.pan.value=v;return p;} return c.createGain(); };
-    function lfo(c,freq,depth,target,t0){ const o=c.createOscillator(),g=c.createGain(); o.frequency.value=freq; g.gain.value=depth; o.connect(g); g.connect(target); o.start(t0); return o; }
+    let bucket=null; const keep=o=>{ if(bucket) bucket.push(o); return o; };
+    function lfo(c,freq,depth,target,t0){ const o=c.createOscillator(),g=c.createGain(); o.frequency.value=freq; g.gain.value=depth; o.connect(g); g.connect(target); o.start(t0); return keep(o); }
     function bell(c,t,f,peak,out,verb,pn,decay){
       const g=c.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(peak,t+.008); g.gain.exponentialRampToValueAtTime(0.0001,t+(decay||3));
       [[1,1],[2.76,.18],[5.4,.06]].forEach(([m,a])=>{ const o=c.createOscillator(); o.type='sine'; o.frequency.value=f*m; const og=c.createGain(); og.gain.value=a; o.connect(og); og.connect(g); o.start(t); o.stop(t+(decay||3)+.1); });
@@ -1616,8 +1687,8 @@ const DATA = [
       let next=t0, i=0, nextSh=t0+3;
       return { out, level:1.4,
         schedule(a,b){
-          while(next<b){ CH[i%4].forEach((fr,k)=>padNote(c,next,10.5,fr,f,{peak:[.05,.04,.032,.03,.026,.02][k],att:3,rel:3.5,type:k<2?'triangle':'sawtooth'})); next+=8; i++; }
-          while(nextSh<b){ const top=CH[Math.floor((nextSh-t0)/8)%4]; bell(c,nextSh,top[5]*2,.012,out,verb,r()*1.2-.6,5); nextSh+=5+r()*4; }
+          while(next<b){ if(next>=a-.15) CH[i%4].forEach((fr,k)=>padNote(c,next,10.5,fr,f,{peak:[.05,.04,.032,.03,.026,.02][k],att:3,rel:3.5,type:k<2?'triangle':'sawtooth'})); next+=8; i++; }
+          while(nextSh<b){ const top=CH[Math.floor((nextSh-t0)/8)%4]; if(nextSh>=a-.15) bell(c,nextSh,top[5]*2,.012,out,verb,r()*1.2-.6,5); nextSh+=5+r()*4; }
         },
         slide(t,fwd){ whoosh(c,t,fwd,out,verb,noise,4.2); bell(c,t+.25,1046.5,.085,out,verb,fwd?.3:-.3,2.5); } };
     }
@@ -1631,8 +1702,8 @@ const DATA = [
       let nextBar=t0, i=0, step=t0, s=0;
       return { out, level:2,
         schedule(a,b){
-          while(nextBar<b){ const k=i%4; CH[k].forEach((fr,j)=>padNote(c,nextBar,bar*2+2,fr,f,{peak:[.035,.022,.02,.018,.014][j],att:1.5,rel:2,type:'triangle',det:[-5,5]})); softKick(c,nextBar,.11,out); softKick(c,nextBar+beat*2,.07,out); nextBar+=bar*2; i++; }
-          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, n=ARP[k][s%4]; if(s%8!==7) pluck(c,step,n,.035,out,verb,(s%2?.3:-.3)); if(s%2===1) tick(c,step,.02,out,noise,.4); step+=beat/2; s++; }
+          while(nextBar<b){ const k=i%4; if(nextBar>=a-.15){ CH[k].forEach((fr,j)=>padNote(c,nextBar,bar*2+2,fr,f,{peak:[.035,.022,.02,.018,.014][j],att:1.5,rel:2,type:'triangle',det:[-5,5]})); softKick(c,nextBar,.11,out); softKick(c,nextBar+beat*2,.07,out); } nextBar+=bar*2; i++; }
+          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, n=ARP[k][s%4]; if(step>=a-.15){ if(s%8!==7) pluck(c,step,n,.035,out,verb,(s%2?.3:-.3)); if(s%2===1) tick(c,step,.02,out,noise,.4); } step+=beat/2; s++; }
         },
         slide(t,fwd){ tick(c,t,.3,out,noise,0); whoosh(c,t+.02,fwd,out,verb,noise,3.1); } };
     }
@@ -1647,8 +1718,8 @@ const DATA = [
       let nextBar=t0, i=0, step=t0+.2, s=0;
       return { out, level:1.9,
         schedule(a,b){
-          while(nextBar<b){ CH[i%4].forEach((fr,j)=>padNote(c,nextBar,bar*2+2.5,fr,f,{peak:[.045,.03,.022,.016][j],att:1.8,rel:2.5,type:'triangle',det:[-4,4]})); epiano(c,nextBar,CH[i%4][1],.05,out,verb,0); nextBar+=bar*2; i++; }
-          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, pi=PAT[s%8]; if(pi>=0&&r()<.9) epiano(c,step,UP[k][pi],.045,out,verb,(r()-.5)*.8); step+=beat; s++; }
+          while(nextBar<b){ if(nextBar>=a-.15) CH[i%4].forEach((fr,j)=>padNote(c,nextBar,bar*2+2.5,fr,f,{peak:[.045,.03,.022,.016][j],att:1.8,rel:2.5,type:'triangle',det:[-4,4]})); if(nextBar>=a-.15) epiano(c,nextBar,CH[i%4][1],.05,out,verb,0); nextBar+=bar*2; i++; }
+          while(step<b){ const k=Math.floor((step-t0)/(bar*2))%4, pi=PAT[s%8]; if(pi>=0&&r()<.9&&step>=a-.15) epiano(c,step,UP[k][pi],.045,out,verb,(r()-.5)*.8); step+=beat; s++; }
         },
         slide(t,fwd){ epiano(c,t,fwd?880:739.99,.15,out,verb,-.2); epiano(c,t+.12,fwd?1174.66:987.77,.12,out,verb,.2); } };
     }
@@ -1657,14 +1728,16 @@ const DATA = [
     function deepFocus(c,dest,verb,t0){
       const {out,f}=chordModel(c,dest,verb,t0,{cut:700,cutLfo:[.025,260]}); const noise=pink(c,3,64), r=rngOf(21);
       [[55,.06],[82.41,.04],[110,.035],[164.81,.02]].forEach(([fr,a])=>{ const g=c.createGain(); g.gain.value=a; g.connect(f);
-        ['sine','triangle'].forEach((tp,j)=>{ const o=c.createOscillator(); o.type=tp; o.frequency.value=fr; o.detune.value=j?6:-6; o.connect(g); o.start(t0); }); });
+        ['sine','triangle'].forEach((tp,j)=>{ const o=c.createOscillator(); o.type=tp; o.frequency.value=fr; o.detune.value=j?6:-6; o.connect(g); o.start(t0); keep(o); }); });
+      // an octave-up layer so the drone still reads on small phone speakers
+      [[220,.022],[329.63,.012]].forEach(([fr,a])=>{ const o=c.createOscillator(); o.type='triangle'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=a; o.connect(g); g.connect(f); o.start(t0); keep(o); });
       const sh=c.createGain(); sh.gain.value=.012; sh.connect(out); sh.connect(verb); lfo(c,.06,.009,sh.gain,t0);
-      [880,1318.51,1108.73].forEach((fr,j)=>{ const o=c.createOscillator(); o.type='sine'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=.33; lfo(c,.05+j*.023,.3,g.gain,t0+j); o.connect(g); g.connect(sh); o.start(t0); });
+      [880,1318.51,1108.73].forEach((fr,j)=>{ const o=c.createOscillator(); o.type='sine'; o.frequency.value=fr; const g=c.createGain(); g.gain.value=.33; lfo(c,.05+j*.023,.3,g.gain,t0+j); o.connect(g); g.connect(sh); o.start(t0); keep(o); });
       let pulse=t0+.5, nextBell=t0+4;
       return { out, level:.9,
         schedule(a,b){
-          while(pulse<b){ softKick(c,pulse,.13,out); softKick(c,pulse+.42,.06,out); pulse+=2.4; }
-          while(nextBell<b){ const n=[440,554.37,659.25,880]; bell(c,nextBell,n[Math.floor(r()*4)],.02,out,verb,r()*1-.5,4.5); nextBell+=6+r()*6; }
+          while(pulse<b){ if(pulse>=a-.15){ softKick(c,pulse,.13,out); softKick(c,pulse+.42,.06,out); } pulse+=2.4; }
+          while(nextBell<b){ const n=[440,554.37,659.25,880]; if(nextBell>=a-.15) bell(c,nextBell,n[Math.floor(r()*4)],.02,out,verb,r()*1-.5,4.5); nextBell+=6+r()*6; }
         },
         slide(t,fwd){
           const o=c.createOscillator(); o.type='sine'; o.frequency.setValueAtTime(95,t); o.frequency.exponentialRampToValueAtTime(42,t+.9);
@@ -1682,23 +1755,34 @@ const DATA = [
     }
     function swap(to){
       const t=ctx.currentTime, old=engine;
-      engine=BUILD[to](ctx,master,verbIn,t);
+      bucket=[]; engine=BUILD[to](ctx,master,verbIn,t); engine.keep=bucket; bucket=null;
       engine.out.gain.setValueAtTime(0.0001,t); engine.out.gain.exponentialRampToValueAtTime(engine.level,t+2.5);
       engine.schedule(t,t+3);
       if(old){ old.out.gain.cancelScheduledValues(t); old.out.gain.setValueAtTime(Math.max(old.out.gain.value,.0001),t); old.out.gain.exponentialRampToValueAtTime(0.0001,t+2);
-        setTimeout(()=>{ try{old.out.disconnect();}catch(e){} },2600); }
+        setTimeout(()=>{ (old.keep||[]).forEach(o=>{try{o.stop();}catch(e){}}); try{old.out.disconnect();}catch(e){} },2600); }
     }
     function ui(){ const b=$('bSound'); if(b) b.setAttribute('aria-pressed',on?'true':'false');
-      document.querySelectorAll('.sm button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.m===model?'true':'false')); }
+      const sw=$('sndSwitch'); if(sw) sw.setAttribute('aria-checked',on?'true':'false');
+      document.querySelectorAll('.opt').forEach(x=>{ const sel=x.dataset.m===model; x.setAttribute('aria-checked',sel?'true':'false'); x.classList.toggle('playing',sel&&on); }); }
     function toast(html){ const t=$('toast'); t.innerHTML=html; t.classList.add('show'); clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove('show'),2600); }
+    // iPhone: let page audio play even with the ring/silent switch on
+    const SILENT='data:audio/wav;base64,UklGRsQPAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YaAPAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA';
+    let unlocked=false;
+    function iosPlayback(){
+      if(unlocked) return; unlocked=true;
+      try{ if(navigator.audioSession) navigator.audioSession.type='playback'; }catch(e){}
+      const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+      if(ios&&!navigator.audioSession){ try{ const a=document.createElement('audio'); a.setAttribute('x-webkit-airplay','deny'); a.preload='auto'; a.loop=true; a.src=SILENT; const pr=a.play(); if(pr&&pr.catch) pr.catch(()=>{}); }catch(e){} }
+    }
     function start(){
       if(!AC||on) return;
+      iosPlayback();
       if(!ctx){ ctx=new AC(); const g=graph(ctx); master=g.m; verbIn=g.cv; }
       const go=()=>{ const t=ctx.currentTime; master.gain.cancelScheduledValues(t); master.gain.setValueAtTime(master.gain.value,t); master.gain.linearRampToValueAtTime(.9,t+3.5); };
       const pr=ctx.resume(); if(pr&&pr.then) pr.then(go,()=>{}); else go();
       on=true; if(!engine) swap(model);
       clearInterval(timer); timer=setInterval(()=>{ if(engine) engine.schedule(ctx.currentTime,ctx.currentTime+3); },1000);
-      ui(); toast('Sound <b>'+model+' · '+NAMES[model]+'</b> · <b>1</b>–<b>4</b> switch · <b>M</b> mute');
+      ui(); toast('Sound <b>'+model+' · '+NAMES[model]+'</b>');
     }
     function stop(){
       if(!on) return; on=false; clearInterval(timer); ui();
@@ -1718,6 +1802,7 @@ const DATA = [
       (cues||[]).forEach((t,i)=>e.slide(t,i%2===0));
       const buf=await c.startRendering(); return [buf.getChannelData(0),buf.getChannelData(1)];
     }
+    document.addEventListener('visibilitychange',()=>{ if(!ctx) return; if(document.hidden) ctx.suspend(); else if(on) ctx.resume(); });
     ui();
     return { supported:!!AC, names:NAMES,
       toggle(){ if(on){stop();store.set('ys-sound','off');} else {start();store.set('ys-sound','on');} },
@@ -1738,18 +1823,29 @@ const DATA = [
 
   $('bPrev').onclick=prev; $('bNext').onclick=next; $('edgePrev').onclick=prev; $('edgeNext').onclick=next;
   $('bReplay').onclick=()=>play(slides[cur]);
-  $('bSound').onclick=()=>{ armed=false; Sound.toggle(); };
-  document.querySelectorAll('.sm button').forEach(b=>b.onclick=()=>{ armed=false; Sound.setModel(b.dataset.m); });
-  if(!Sound.supported||EXP){ $('bSound').hidden=true; document.querySelector('.sm').hidden=true; }
+  // Toolbar panels
+  const pops={popSound:$('bSound'),popMore:$('bMore')};
+  function closePops(){ Object.keys(pops).forEach(id=>{ $(id).hidden=true; pops[id].setAttribute('aria-expanded','false'); }); }
+  function togglePop(id){ const open=$(id).hidden; closePops(); if(open){ $(id).hidden=false; pops[id].setAttribute('aria-expanded','true'); document.body.classList.remove('idle'); } }
+  $('bSound').onclick=e=>{ e.stopPropagation(); armed=false; togglePop('popSound'); };
+  $('bMore').onclick=e=>{ e.stopPropagation(); togglePop('popMore'); };
+  $('sndSwitch').onclick=()=>{ armed=false; Sound.toggle(); };
+  document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ armed=false; Sound.setModel(b.dataset.m); });
+  document.querySelectorAll('#popMore .row').forEach(b=>b.onclick=()=>{ const a=b.dataset.act; closePops();
+    if(a==='replay') play(slides[cur]); else if(a==='notes') toggleNotes(); else if(a==='script') toggleScript(true); else if(a==='fs') toggleFs(); });
+  document.addEventListener('pointerdown',e=>{ if(!e.target.closest('.pop')&&!e.target.closest('#bSound')&&!e.target.closest('#bMore')) closePops(); });
+  if(!document.fullscreenEnabled) $('rowFs').hidden=true;
+  if(!Sound.supported||EXP){ $('bSound').hidden=true; }
   // Browsers only allow audio after a gesture: the first click, tap or key press fades the ambience in (unless muted before).
   let armed=!EXP&&Sound.supported;
-  const firstGesture=e=>{ if(!armed) return; if(['m','M','1','2','3','4'].includes(e.key)) return; if(e.target&&e.target.closest&&e.target.closest('.sm')) return; if(e.target&&e.target.closest&&e.target.closest('#bSound')) return; armed=false; Sound.autoStart(); };
+  const firstGesture=e=>{ if(!armed) return; if(['m','M','1','2','3','4'].includes(e.key)) return; if(e.target&&e.target.closest&&(e.target.closest('.pop')||e.target.closest('#bMore'))) return; if(e.target&&e.target.closest&&e.target.closest('#bSound')) return; armed=false; Sound.autoStart(); };
   ['pointerup','keydown','touchend'].forEach(ev=>document.addEventListener(ev,firstGesture,{capture:true}));
   $('bNotes').onclick=()=>toggleNotes(); $('bScript').onclick=()=>toggleScript(true); $('bBack').onclick=()=>toggleScript(false); $('bFs').onclick=toggleFs;
 
   document.addEventListener('keydown',e=>{
     if(e.metaKey||e.ctrlKey||e.altKey) return;
     const k=e.key;
+    if(k==='Escape'&&(!$('popSound').hidden||!$('popMore').hidden)){ closePops(); return; }
     if(!$('script').hidden){ if(k==='Escape'||k==='s'||k==='S'){toggleScript(false);e.preventDefault();} return; }
     if(['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(k)){ if(k==='Enter'&&e.target.tagName==='BUTTON')return; next(); e.preventDefault(); }
     else if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(k)){ prev(); e.preventDefault(); }
@@ -1771,7 +1867,7 @@ const DATA = [
 
   // Idle toolbar in fullscreen
   let idleT;
-  const wake=()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>document.body.classList.add('idle'),2600);};
+  const wake=()=>{document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{ if($('popSound').hidden&&$('popMore').hidden) document.body.classList.add('idle'); },2600);};
   document.addEventListener('mousemove',wake); document.addEventListener('touchstart',wake,{passive:true});
 
   // Script view
